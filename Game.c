@@ -17,8 +17,7 @@
 #define NUM_GAMES_PER_EVALUATION 100	// number of games used to evaluate fitness
 #define POOL_SIZE 100	// number of members in each generation
 
-#define HASH_ARRAY_SIZE 55	// the number of two card combinations when treating ten, jack, queen, and king
-							// as the same type of card, since they hold the same value in blackjack
+#define HASH_ARRAY_SIZE 21	// hash by the possible sums (before busting)
 
 typedef struct {
 	int rank, suit;
@@ -185,6 +184,17 @@ nodeType* listInsert (nodeType *head, long long int key, int value) {
 	return head;
 }
 
+// listPrint: prints out the contents of a list for debugging
+void listPrint (nodeType *head) {
+	if (head == NULL) {
+		printf ("\n\n");
+	}
+	else {
+		printf ("(%lli,%d) ", head->key, head->value);
+		listPrint (head->next);
+	}
+}
+
 // handToKey: computes the key for a given hand
 long long int handToKey (handType *hand) {
 	long long int key = 0;
@@ -203,18 +213,27 @@ long long int handToKey (handType *hand) {
 
 // handToIndex: finds the index in the hash table for a given hand
 int handToIndex (handType *hand) {
-	int index = hand->cards[0]->rank * 10 + hand->cards[1]->rank;	// we are guaranteed the hand will have at least two cards
+	int rawSum = 0;
 
-	int offset = hand->cards[0]->rank * (hand->cards[0]->rank + 1) / 2;	// this offset accounts for index values that
-															// are illegal due to the hands being sorted (e.g. 20, 32, 31)
-	return index - offset;
+	for (int i = 0; i < hand->handSize; i++) {
+		if (hand->cards[i]->rank < 9) {
+			rawSum += hand->cards[i]->rank + 1;
+		}
+		else {
+			rawSum += 10;
+		}
+	}
+
+	return rawSum;
 }
 
 void hashTableInsert (hashTableType *table, handType *hand, int response) {
-	printf ("hashTableInsert\n\n");
 	int index = handToIndex(hand);
 	long long int key = handToKey(hand);
 	table->heads[index] = listInsert(table->heads[index], key, response);
+
+	printf ("hashTableInsert: index %d\n", index);
+	listPrint (table->heads[index]);
 }
 
 void hashTableInitAllKeys (hashTableType *table, handType *hand, int* ranks, int curRank) {
@@ -224,7 +243,7 @@ void hashTableInitAllKeys (hashTableType *table, handType *hand, int* ranks, int
 	}
 	printf ("\n");
 
-	//hashTableInsert (table, hand, randInt(0, 1));	// choose an initially random response for the AI
+	hashTableInsert (table, hand, randInt(0, 1));	// choose an initially random response for the AI
 
 	if (ranks[curRank] >= NUM_SUITS) {
 		curRank += 1;
@@ -267,7 +286,7 @@ void hashTableInit (hashTableType *table) {
 
 	hand.handSize = 0;
 
-	for (int i = 0; i < NUM_RANKS - 1; i++) {
+	for (int i = 0; i < NUM_RANKS; i++) {
 		hand.cards[hand.handSize]->rank = i;
 		hand.handSize += 1;
 		ranks[i] += 1;
