@@ -17,7 +17,7 @@ typedef struct {
 } cardType;
 
 typedef struct {
-	int sum, handSize;	// key used to lookup the hand in the hash table
+	int sum, handSize, hit;	// key used to lookup the hand in the hash table
 	cardType *cards[MAX_HAND_SIZE];	// array that points to cards
 } handType;
 
@@ -33,6 +33,6 @@ void handInsert (handType *hand, cardType *card);
 
 void handRemove (handType *hand, cardType *card);
 
-int handFindSum (handType *hand);
+void handFindSum (handType *hand);
 
 #endif /* CARDS_H_ */

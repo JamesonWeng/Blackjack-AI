@@ -86,9 +86,9 @@ void handRemove (handType *hand, cardType *card) {
 
 
 // handFindSum: tries to find the largest sum under 21 for a given hand (if the hand is a bust, the sum will be over 21)
-int handFindSum (handType *hand) {
+void handFindSum (handType *hand) {
 	int numAces = 0;
-	int sum = 0;
+	hand->sum = 0;
 
 	// find the sum of the hand assuming the aces are 1
 	for (int i = 0; i < hand->handSize; i++) {
@@ -97,19 +97,17 @@ int handFindSum (handType *hand) {
 		}
 
 		if (hand->cards[i]->rank >= 0 && hand->cards[i]->rank <= 9) {
-			sum += hand->cards[i]->rank + 1;
+			hand->sum += hand->cards[i]->rank + 1;
 		}
 		else {
-			sum += 10;
+			hand->sum += 10;
 		}
 	}
 
 	// find the best possible sum (without busting) by changing the worth of the aces
-	while (numAces > 0  && sum <= 11) {
-		sum += 10;
+	while (numAces > 0  && hand->sum <= 11) {
+		hand->sum += 10;
 		numAces -= 1;
 	}
-
-	return sum;
 }
 

@@ -13,6 +13,7 @@
 #define DECK_SIZE NUM_RANKS * NUM_SUITS
 #define NUM_SHUFFLE 200
 
+#define MIN_HAND_SIZE 2
 #define MAX_HAND_SIZE 12
 
 #define HASH_ARRAY_SIZE 22	// hash by the possible sums (before busting)
