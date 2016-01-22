@@ -11,7 +11,7 @@
  	 FUNCTIONS FOR A DECK
  ********************************************/
 
-void createDeck (cardType **deck) {
+void deckCreate (cardType **deck) {
 	for (int i = 0; i < NUM_RANKS; i++) {
 		for (int j = 0; j < NUM_SUITS; j++) {
 			deck[i*NUM_SUITS + j] = malloc (sizeof (cardType));
@@ -24,7 +24,7 @@ void createDeck (cardType **deck) {
 	}
 }
 
-void shuffleDeck (cardType **deck) {
+void deckShuffle (cardType **deck) {
 	int i1, i2;
 	cardType *temp;
 	for (int i = 0; i < NUM_SHUFFLE; i++) {
@@ -38,9 +38,9 @@ void shuffleDeck (cardType **deck) {
 	}
 }
 
-void freeDeck (cardType **deck) {
-	for (int i = 0; i < DECK_SIZE; i++) {
-		free (deck[i]);
+void freeCards (cardType **cards, int numCards) {
+	for (int i = 0; i < numCards; i++) {
+		free (cards[i]);
 	}
 }
 
@@ -72,7 +72,6 @@ void handInsert (handType *hand, cardType *card) {
 
 // handRemove: removes a card from the hand
 void handRemove (handType *hand, cardType *card) {
-
 	int place = 0;
 	while (place < hand->handSize && hand->cards[place]->rank != card->rank) {
 		place += 1;

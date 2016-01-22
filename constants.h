@@ -15,8 +15,9 @@
 
 #define MIN_HAND_SIZE 2
 #define MAX_HAND_SIZE 12
+#define DEALER_MIN_SUM 17 // the dealer must keep hitting until he has a sum of at least 17
 
-#define HASH_ARRAY_SIZE 22	// hash by the possible sums (before busting)
+#define HASH_ARRAY_SIZE 23
 
 #define POOL_SIZE 200
 #define NUM_GENERATIONS 1000

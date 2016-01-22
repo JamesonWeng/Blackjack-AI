@@ -9,8 +9,10 @@
 #ifndef CARDS_H_
 #define CARDS_H_
 
-#include "constants.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "constants.h"
+#include "utils.h"
 
 typedef struct {
 	int rank, suit;
@@ -21,11 +23,11 @@ typedef struct {
 	cardType *cards[MAX_HAND_SIZE];	// array that points to cards
 } handType;
 
-void createDeck (cardType **deck);
+void deckCreate (cardType **deck);
 
-void shuffleDeck (cardType **deck);
+void deckShuffle (cardType **deck);
 
-void freeDeck (cardType **deck);
+void freeCards (cardType **cards, int numCards);
 
 void printCards (cardType **cards, int numCards);
 

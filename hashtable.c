@@ -32,15 +32,15 @@ nodeType* listInsert (nodeType *head, long long int key, int value) {
 // listLookup: given a key, finds the node containing the response (either 0 or 1)
 // if no such node (should not occur), will return -1
 int listLookup (nodeType *head, long long int key) {
-	if (head == NULL) {
-		return -1;
+	nodeType *current;
+	current = head;
+	while (current != NULL) {
+		if (current->key == key) {
+			return current->value;
+		}
+		current = current->next;
 	}
-	else if (head->key == key) {
-		return head->value;
-	}
-	else {
-		return listLookup (head->next, key);
-	}
+	return -1;
 }
 
 // listPrint: prints out the contents of a list for debugging
@@ -71,8 +71,8 @@ long long int handToKey (handType *hand) {
 
 // handToIndex: finds the index in the hash table for a given hand
 int handToIndex (handType *hand) {
+	/*
 	int rawSum = 0;
-
 	for (int i = 0; i < hand->handSize; i++) {
 		if (hand->cards[i]->rank < 9) {
 			rawSum += hand->cards[i]->rank + 1;
@@ -81,8 +81,9 @@ int handToIndex (handType *hand) {
 			rawSum += 10;
 		}
 	}
+	*/
 
-	return rawSum;
+	return (int) (handToKey(hand) % 23);
 }
 
 void hashTableInsert (hashTableType *table, handType *hand, int response) {
@@ -90,13 +91,15 @@ void hashTableInsert (hashTableType *table, handType *hand, int response) {
 	long long int key = handToKey (hand);
 	table->heads[index] = listInsert (table->heads[index], key, response);
 
-	printf ("hashTableInsert: index %d\n", index);
+	printf ("hashTableInsert: index %d, key %lli\n", index, key);
 	listPrint (table->heads[index]);
 }
 
 int hashTableLookup (hashTableType *table, handType *hand) {
 	int index = handToIndex (hand);
 	long long int key = handToKey (hand);
+
+	printf ("hashTableLookup: index %i, key %lli\n", index, key);
 
 	return listLookup (table->heads[index], key);
 }
@@ -138,10 +141,15 @@ void hashTableInit (hashTableType *table) {
 	int ranks[NUM_RANKS] = {0};
 	handType hand;
 
+	for (int i = 0; i < HASH_ARRAY_SIZE; i++) {
+		table->heads[i] = NULL;
+	}
+
+	// allocate memory for the hand
 	for (int i = 0; i < MAX_HAND_SIZE; i++) {
 		hand.cards[i] = malloc (sizeof (cardType));
 		if (hand.cards[i] == NULL) {
-			printf ("Memory allocation for cards in hand failed\n");
+			printf ("hashTableInit: Memory allocation failed\n");
 		}
 	}
 
@@ -165,6 +173,26 @@ void hashTableInit (hashTableType *table) {
 
 		hand.handSize -=1;
 		ranks[i] -= 1;
+	}
+
+	// free the hand
+	for (int i = 0; i < MAX_HAND_SIZE; i++) {
+		free (hand.cards[i]);
+	}
+}
+
+void hashTableToFile (hashTableType *table, FILE *f) {
+	printf ("hashTableToFile");
+
+	nodeType *current;
+	for (int i = 0; i < HASH_ARRAY_SIZE; i++) {
+		current = table->heads[i];
+		fprintf (f, "Index %i: ", i);
+		while (current != NULL) {
+			fprintf (f, "(%lli,%i) ", current->key, current->value);
+			current = current->next;
+		}
+		fprintf (f, "\n\n");
 	}
 }
 

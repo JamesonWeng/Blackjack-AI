@@ -15,8 +15,10 @@
 typedef struct {
 	handType hand;
 	int fitness;	// measure of how good the AI is
-	hashTableType response;
+	hashTableType responses;
 } aiType;
+
+void aiInit (aiType *ai);
 
 int calculateFitness (aiType *ai);
 

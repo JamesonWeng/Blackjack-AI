@@ -51,4 +51,6 @@ int hashTableLookup (hashTableType *table, handType *hand);
 
 void hashTableInit (hashTableType *table);
 
+void hashTableToFile (hashTableType *table, FILE *f);
+
 #endif /* HASHTABLE_H_ */
