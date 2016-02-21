@@ -20,6 +20,6 @@ typedef struct {
 
 void aiInit (aiType *ai);
 
-int calculateFitness (aiType *ai);
+void calculateFitness (aiType *ai);
 
 #endif /* AI_H_ */

@@ -24,7 +24,7 @@ static void aiFindResponse (aiType *ai) {
 }
 
 // calculateFitness: find the fitness of a given AI by seeing how many games it wins
-int calculateFitness (aiType *ai) {
+void calculateFitness (aiType *ai) {
 	handType dealerHand;
 	cardType *deck[DECK_SIZE];
 	int deckIndex;
@@ -52,39 +52,42 @@ int calculateFitness (aiType *ai) {
 
 		while (ai->hand.sum <= 21 && dealerHand.sum <= 21 && (ai->hand.hit || dealerHand.hit)) {
 			if (ai->hand.hit) {
-				printf ("\nAI hits\n");
 				handInsert (&(ai->hand), deck[deckIndex++]);
 				handFindSum (&(ai->hand));
 				if (ai->hand.sum <= 21) {
 					aiFindResponse(ai);
 				}
-
-				printCards (ai->hand.cards, ai->hand.handSize);
 			}
 
 			if (dealerHand.hit) {
-				printf ("\nDealer hits\n");
 				handInsert (&dealerHand, deck[deckIndex++]);
 				handFindSum (&dealerHand);
 				if (dealerHand.sum >= DEALER_MIN_SUM) {
 					dealerHand.hit = 0;
 				}
-
-				printCards (dealerHand.cards, dealerHand.handSize);
 			}
 		}
 
-		printf ("\nAI Hand:\n");
-		printCards(ai->hand.cards, ai->hand.handSize);
-		printf ("\nDealer Hand:\n");
-		printCards(dealerHand.cards, dealerHand.handSize);
-
-
-
-		break;
+		if (ai->hand.sum <= 21 && (ai->hand.sum > dealerHand.sum || dealerHand.sum > 21)) {
+			gamesWon++;
+		}
 	}
 
 	freeCards (deck, DECK_SIZE);
 
-	return gamesWon;
+	printf ("Games won: %i\n", gamesWon);
+	ai->fitness = gamesWon;
 }
+
+void aiMutate (aiType *ai) {
+	if (randInt(1, 100) >= MUTATION_CHANCE) {
+
+	}
+}
+
+void aiMate (aiType *ai1, aiType *ai2, aiType *aiNew) {
+	for (int i = 0; i < HASH_ARRAY_SIZE; i++) {
+
+	}
+}
+

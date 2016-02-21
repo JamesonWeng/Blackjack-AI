@@ -39,6 +39,8 @@ int listLookup (nodeType *head, long long int key);
 // listPrint: prints out the contents of a list for debugging
 void listPrint (nodeType *head);
 
+void listFree (nodeType *head);
+
 // handToKey: computes the key for a given hand
 long long int handToKey (handType *hand);
 
@@ -52,5 +54,7 @@ int hashTableLookup (hashTableType *table, handType *hand);
 void hashTableInit (hashTableType *table);
 
 void hashTableToFile (hashTableType *table, FILE *f);
+
+void hashTableFree (hashTableType *table);
 
 #endif /* HASHTABLE_H_ */

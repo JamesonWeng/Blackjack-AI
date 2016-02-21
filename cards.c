@@ -25,15 +25,14 @@ void deckCreate (cardType **deck) {
 }
 
 void deckShuffle (cardType **deck) {
-	int i1, i2;
+	int swapIndex;
 	cardType *temp;
-	for (int i = 0; i < NUM_SHUFFLE; i++) {
-		i1 = randInt (0, DECK_SIZE - 2);
-		i2 = randInt (i1 + 1, DECK_SIZE - 1);
+	for (int i = 0; i < DECK_SIZE; i++) {
+		swapIndex = randInt (i, DECK_SIZE - 1);
 
-		temp = deck[i1];
-		deck[i1] = deck[i2];
-		deck[i2] = temp;
+		temp = deck[i];
+		deck[i] = deck[swapIndex];
+		deck[swapIndex] = temp;
 
 	}
 }

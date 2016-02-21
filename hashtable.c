@@ -43,7 +43,7 @@ int listLookup (nodeType *head, long long int key) {
 	return -1;
 }
 
-// listPrint: prints out the contents of a list for debugging
+// listPrint: prints out the contents of a list
 void listPrint (nodeType *head) {
 	nodeType *current = head;
 	while (current != NULL) {
@@ -51,6 +51,17 @@ void listPrint (nodeType *head) {
 		current = current->next;
 	}
 	printf ("\n\n");
+}
+
+// freeList: frees all the pointers in a linked list
+void listFree (nodeType *head) {
+	nodeType *current = head;
+	nodeType *temp;
+	while (current != NULL) {
+		temp = current;
+		current = current->next;
+		free (temp);
+	}
 }
 
 // handToKey: computes the key for a given hand
@@ -71,19 +82,7 @@ long long int handToKey (handType *hand) {
 
 // handToIndex: finds the index in the hash table for a given hand
 int handToIndex (handType *hand) {
-	/*
-	int rawSum = 0;
-	for (int i = 0; i < hand->handSize; i++) {
-		if (hand->cards[i]->rank < 9) {
-			rawSum += hand->cards[i]->rank + 1;
-		}
-		else {
-			rawSum += 10;
-		}
-	}
-	*/
-
-	return (int) (handToKey(hand) % 23);
+	return (int) (handToKey(hand) % HASH_ARRAY_SIZE);
 }
 
 void hashTableInsert (hashTableType *table, handType *hand, int response) {
@@ -99,7 +98,7 @@ int hashTableLookup (hashTableType *table, handType *hand) {
 	int index = handToIndex (hand);
 	long long int key = handToKey (hand);
 
-	printf ("hashTableLookup: index %i, key %lli\n", index, key);
+	//printf ("hashTableLookup: index %i, key %lli\n", index, key);
 
 	return listLookup (table->heads[index], key);
 }
@@ -182,7 +181,7 @@ void hashTableInit (hashTableType *table) {
 }
 
 void hashTableToFile (hashTableType *table, FILE *f) {
-	printf ("hashTableToFile");
+	printf ("hashTableToFile\n");
 
 	nodeType *current;
 	for (int i = 0; i < HASH_ARRAY_SIZE; i++) {
@@ -196,4 +195,9 @@ void hashTableToFile (hashTableType *table, FILE *f) {
 	}
 }
 
+void hashTableFree (hashTableType *table) {
+	for (int i = 0; i < HASH_ARRAY_SIZE; i++) {
+		listFree (table->heads[i]);
+	}
+}
 

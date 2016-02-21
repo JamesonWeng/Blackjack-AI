@@ -14,8 +14,16 @@
 #include "constants.h"
 #include "utils.h"
 
+typedef enum {
+	heart = 0,
+	club = 1,
+	diamond = 2,
+	spade = 3,
+} suitType;
+
 typedef struct {
-	int rank, suit;
+	int rank;
+	suitType suit;
 } cardType;
 
 typedef struct {
