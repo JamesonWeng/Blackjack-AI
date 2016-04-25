@@ -26,8 +26,8 @@ void aiFree(aiType *ai) {
 }
 
 // aiFindResponse: finds the response of the AI, and stores it in the hit field
-static void aiFindResponse(aiType *ai) {
-	ai->hand->hit = hashTableLookup(ai->responses, ai->hand);
+static void aiFindResponse(aiType *ai, cardType *dealerCard) {
+	ai->hand->hit = hashTableLookup(ai->responses, ai->hand, dealerCard->rank);
 	if (ai->hand->hit == -1)
 		printf("aiFindResponse: No response from lookup\n");
 }
@@ -41,38 +41,34 @@ static void aiCalculateFitness(aiType *ai) {
 	int gamesWon = 0;
 
 	for (int i = 0; i < NUM_GAMES_PER_EVALUATION; i++) {
-
 		deckShuffle(deck);
 
 		ai->hand->handSize = 0;
-
 		dealerHand->handSize = 0;
 		dealerHand->hit = 1;
 		deckIndex = 0;
 
-
 		for (int i = 0; i < MIN_HAND_SIZE; i++) {
-			handInsert(ai->hand, &deck[deckIndex++]);
-			handInsert(dealerHand, &deck[deckIndex++]);
+			handInsert(ai->hand, deck + deckIndex++);
+			handInsert(dealerHand, deck + deckIndex++);
 		}
 
-		aiFindResponse(ai);
-
+		aiFindResponse(ai, dealerHand->cards); // we suppose the first card in dealer's hand is face up
 		handFindSum(ai->hand);
 		handFindSum(dealerHand);
 
 		while (ai->hand->sum <= 21 && dealerHand->sum <= 21 && (ai->hand->hit || dealerHand->hit)) {
 			if (ai->hand->hit) {
-				handInsert(ai->hand, &deck[deckIndex++]);
+				handInsert(ai->hand, deck + deckIndex++);
 				handFindSum(ai->hand);
 
 				if (ai->hand->sum <= 21)
-					aiFindResponse(ai);
+					aiFindResponse(ai, dealerHand->cards);
 			}
 
 			if (dealerHand->hit) {
-				handInsert (dealerHand, &deck[deckIndex++]);
-				handFindSum (dealerHand);
+				handInsert(dealerHand, deck + deckIndex++);
+				handFindSum(dealerHand);
 
 				if (dealerHand->sum >= DEALER_MIN_SUM)
 					dealerHand->hit = 0;
@@ -95,9 +91,16 @@ static void aiMutate (aiType *ai) {
 		nodeType *cur = ai->responses->heads[i];
 
 		while (cur) {
-			if (randInt(1, 100) <= MUTATION_CHANCE)
-				cur->value = randInt(0, 1);
-
+			if (randInt(1, 100) <= MUTATION_CHANCE_1) {
+				unsigned long int response = 0;
+				for (int i = 0; i < NUM_APPRECIABLE_RANKS; i++) {
+					if (randInt(1, 100) <= MUTATION_CHANCE_2)
+						response = response * 10 + randInt(0,1);
+					else
+						response = response * 10 + getDigit(cur->value, NUM_APPRECIABLE_RANKS - i - 1);
+				}
+				cur->value = response;
+			}
 			cur = cur->next;
 		}
 	}
@@ -115,8 +118,16 @@ static aiType *aiMate (aiType *a1, aiType *a2) {
 		aiNew->responses->heads[i] = NULL;
 
 		while (n1 && n2) {
-			nodeType *source = randInt(0,1)? n1 : n2;
-			aiNew->responses->heads[i] = listInsert(aiNew->responses->heads[i], source->key, source->value);
+			unsigned long int response = 0;
+			for (int i = 0; i < NUM_APPRECIABLE_RANKS; i++)
+				response = response * 10 + getDigit(randInt(0,1)? n1->value : n2->value, NUM_APPRECIABLE_RANKS - i - 1);
+
+			if (n1->key != n2->key) {
+				printf("aiMate: different keys\n");
+			}
+
+
+			aiNew->responses->heads[i] = listInsert(aiNew->responses->heads[i], n1->key, response);
 			n1 = n1->next;
 			n2 = n2->next;
 		}
@@ -198,5 +209,36 @@ aiType *aiSimulate() {
 
 	free(aiGen);
 	return res;
+}
+
+static void printHandFromKey(unsigned long long int key, FILE *f) {
+	static const int base = 11;
+	if (key) {
+		printHandFromKey(key / base, f);
+		fprintf(f, "%i ", (int) (key % base));
+	}
+}
+
+void aiToFile(aiType *ai, FILE *f) {
+	for (int i = 0; i < HASH_ARRAY_SIZE; i++) {
+		nodeType *cur = ai->responses->heads[i];
+
+		while (cur) {
+			unsigned long int value = cur->value;
+
+			fprintf(f, "Hand: ");
+			printHandFromKey(cur->key, f);
+
+			fprintf(f, "\n");
+			for (int i = 0; i < NUM_APPRECIABLE_RANKS; i++) {
+				fprintf(f, "Dealer's card: %2i %15s %5s\n", i + 1, "Response: ", (value % 2)? "hit":"pass");
+				value /= 2;
+			}
+			fprintf(f, "\n");
+
+			cur = cur->next;
+		}
+
+	}
 }
 

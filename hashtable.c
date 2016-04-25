@@ -12,7 +12,7 @@
  ********************************************/
 
 // listInsert: insert into a linked list, overwrites duplicate keys
-nodeType *listInsert(nodeType *head, long long int key, int value) {
+nodeType *listInsert(nodeType *head, unsigned long long int key, unsigned long int value) {
 	if (!head) {
 		head = malloc(sizeof(nodeType));
 		head->key = key;
@@ -27,7 +27,7 @@ nodeType *listInsert(nodeType *head, long long int key, int value) {
 	return head;
 }
 
-nodeType *listPrepend(nodeType *lst, long long int key, int value) {
+nodeType *listPrepend(nodeType *lst, unsigned long long int key, unsigned long int value) {
 	nodeType *head = malloc(sizeof(nodeType));
 	head->key = key;
 	head->value = value;
@@ -46,10 +46,10 @@ int listLength (nodeType *lst) {
 
 // listLookup: given a key, finds the node containing the response (either 0 or 1)
 // if no such node (should not occur), will return -1
-int listLookup(nodeType *current, long long int key) {
+int listLookup(nodeType *current, unsigned long long int key, int digit) {
 	while (current) {
-		if (current->key == key)
-			return current->value;
+		if (current->key == key) // get the digit from the right
+			return getDigit(current->value, digit);
 
 		current = current->next;
 	}
@@ -60,7 +60,7 @@ int listLookup(nodeType *current, long long int key) {
 void listPrint(nodeType *head) {
 	nodeType *current = head;
 	while (current) {
-		printf ("(%lli,%d) ", current->key, current->value);
+		printf ("(%llu,%lu) ", current->key, current->value);
 		current = current->next;
 	}
 	printf ("\n\n");
@@ -69,9 +69,8 @@ void listPrint(nodeType *head) {
 // freeList: frees all the pointers in a linked list
 void listFree(nodeType *head) {
 	nodeType *current = head;
-	nodeType *temp;
 	while (current) {
-		temp = current;
+		nodeType *temp = current;
 		current = current->next;
 		free(temp);
 	}
@@ -79,8 +78,8 @@ void listFree(nodeType *head) {
 
 // handToKey: computes the key for a given hand
 // Treats each card in the hand as a digit in base 11, and returns the decimal interpretation of the number
-long long int handToKey(handType *hand) {
-	long long int key = 0;
+unsigned long long int handToKey(handType *hand) {
+	unsigned long long int key = 0;
 	static const int base = 11;
 
 	for (int i = 0; i < hand->handSize; i++) {
@@ -98,27 +97,32 @@ int handToIndex(handType *hand) {
 	return (int) (handToKey(hand) % HASH_ARRAY_SIZE);
 }
 
-void hashTableInsert(hashTableType *table, handType *hand, int response) {
+void hashTableInsert(hashTableType *table, handType *hand, unsigned long int response) {
 	int index = handToIndex(hand);
-	long long int key = handToKey(hand);
+	unsigned long long int key = handToKey(hand);
 	table->heads[index] = listInsert(table->heads[index], key, response);
 }
 
-int hashTableLookup(hashTableType *table, handType *hand) {
+int hashTableLookup(hashTableType *table, handType *hand, int digit) {
 	int index = handToIndex(hand);
-	long long int key = handToKey(hand);
+	unsigned long long int key = handToKey(hand);
 
-	return listLookup(table->heads[index], key);
+	return listLookup(table->heads[index], key, digit);
 }
 
 static void hashTableInitAllKeys(hashTableType *table, handType *hand, int ranks[NUM_RANKS], int curRank) {
-	hashTableInsert(table, hand, randInt(0, 1));	// choose an initially random response for the AI
+	// initially choose a random response for AI
+	unsigned long int response = 0;
+	for (int i = 0; i < NUM_APPRECIABLE_RANKS; i++)
+		response = response * 10 + randInt(0,1);
+
+	hashTableInsert(table, hand, response);
 
 	if (ranks[curRank] >= NUM_SUITS) {
 		curRank += 1;
 	}
 
-	for (int i = curRank; i < NUM_RANKS; i++) {
+	for (int i = curRank; i < NUM_APPRECIABLE_RANKS; i++) {
 		hand->cards[hand->handSize].rank = i;
 		hand->handSize += 1;
 		ranks[i] += 1;
@@ -138,8 +142,8 @@ static void hashTableInitAllKeys(hashTableType *table, handType *hand, int ranks
 }
 
 hashTableType *hashTableInit() {
-	int *ranks = malloc(NUM_RANKS * sizeof(int)); // records number of cards of each rank in hand
-	for (int i = 0; i < NUM_RANKS; i++)
+	int *ranks = malloc(NUM_APPRECIABLE_RANKS * sizeof(int)); // records number of cards of each rank in hand
+	for (int i = 0; i < NUM_APPRECIABLE_RANKS; i++)
 		ranks[i] = 0;
 
 	handType *hand = handInit();
@@ -148,12 +152,12 @@ hashTableType *hashTableInit() {
 	for (int i = 0; i < HASH_ARRAY_SIZE; i++)
 		table->heads[i] = NULL;
 
-	for (int i = 0; i < NUM_RANKS; i++) {
+	for (int i = 0; i < NUM_APPRECIABLE_RANKS; i++) {
 		hand->cards[hand->handSize].rank = i; // we don't care about suit here
 		hand->handSize += 1;
 		ranks[i] += 1;
 
-		for (int j = i; j < NUM_RANKS; j++) {
+		for (int j = i; j < NUM_APPRECIABLE_RANKS; j++) {
 			hand->cards[hand->handSize].rank = j;
 			hand->handSize += 1;
 			ranks[j] += 1;
@@ -177,14 +181,14 @@ void hashTableToFile (hashTableType *table, FILE *f) {
 	nodeType *current;
 	for (int i = 0; i < HASH_ARRAY_SIZE; i++) {
 		current = table->heads[i];
-		fprintf (f, "Index %i: ", i);
+		fprintf(f, "Index %i: ", i);
 
 		while (current) {
-			fprintf (f, "(%lli,%i) ", current->key, current->value);
+			fprintf(f, "(%llu,%lu) ", current->key, current->value);
 			current = current->next;
 		}
 
-		fprintf (f, "\n\n");
+		fprintf(f, "\n\n");
 	}
 }
 
