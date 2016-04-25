@@ -13,7 +13,7 @@
 #define DECK_SIZE NUM_RANKS * NUM_SUITS
 
 #define MIN_HAND_SIZE 2
-#define MAX_HAND_SIZE 12
+#define MAX_HAND_SIZE 12 // at 12 cards, any hand is definitely a bust
 #define DEALER_MIN_SUM 17 // the dealer must keep hitting until he has a sum of at least 17
 
 #define HASH_ARRAY_SIZE 23

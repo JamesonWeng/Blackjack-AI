@@ -78,14 +78,16 @@ void listFree(nodeType *head) {
 }
 
 // handToKey: computes the key for a given hand
+// Treats each card in the hand as a digit in base 11, and returns the decimal interpretation of the number
 long long int handToKey(handType *hand) {
 	long long int key = 0;
+	static const int base = 11;
 
 	for (int i = 0; i < hand->handSize; i++) {
 		if (hand->cards[i].rank < 9)
-			key = key * 10 + hand->cards[i].rank;
+			key = key * base + hand->cards[i].rank + 1;
 		else // ten to king have same value in blackjack, so we won't differentiate for the key
-			key = key * 10 + 9;
+			key = key * base + 10;
 	}
 
 	return key;
@@ -129,6 +131,7 @@ static void hashTableInitAllKeys(hashTableType *table, handType *hand, int ranks
 		}
 
 		hashTableInitAllKeys(table, hand, ranks, i);
+
 		hand->handSize -= 1;
 		ranks[i] -= 1;
 	}

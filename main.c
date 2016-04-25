@@ -7,11 +7,11 @@
 
 int main() {
 	srand((unsigned int) time(NULL));
-	FILE *f = fopen("hashtable.txt", "w");
+	FILE *f = fopen("aiTable.txt", "w");
 
-	aiType *ai = aiSimulate();
+	//aiType *ai = aiSimulate();
 
-	hashTableToFile(ai->responses, f);
+	aiType *ai = aiInit();
 	aiFree(ai);
 	fclose(f);
 	return 0;
