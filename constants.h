@@ -18,10 +18,11 @@
 
 #define HASH_ARRAY_SIZE 23
 
-#define POOL_SIZE 200
+#define POOL_SIZE 500 // make at least 10
+#define POOL_RATIO 4 // reciprocal of precentage of pool kept
 #define NUM_GENERATIONS 1000
 #define NUM_GAMES_PER_EVALUATION 500
 
-#define MUTATION_CHANCE 5
+#define MUTATION_CHANCE 1
 
 #endif /* CONSTANTS_H_ */

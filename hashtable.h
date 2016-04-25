@@ -20,6 +20,7 @@ struct nodeType {
 	int value;	// value is the response of the AI
 	struct nodeType *next;
 };
+
 typedef struct nodeType nodeType;
 
 // Hash table for efficient lookup of the AI's responses: the keys will correspond the hand composition of the AI, and
@@ -28,33 +29,37 @@ typedef struct {
 	nodeType *heads[HASH_ARRAY_SIZE];
 } hashTableType;
 
-
 // listInsert: insert into a linked list
-nodeType* listInsert (nodeType *head, long long int key, int value);
+nodeType* listInsert(nodeType *head, long long int key, int value);
+
+nodeType *listPrepend(nodeType *lst, long long int key, int value);
+
+int listLength (nodeType *lst);
 
 // listLookup: given a key, finds the node containing the response (either 0 or 1)
 // if no such node (should not occur), will return -1
-int listLookup (nodeType *head, long long int key);
+int listLookup(nodeType *head, long long int key);
 
 // listPrint: prints out the contents of a list for debugging
-void listPrint (nodeType *head);
+void listPrint(nodeType *head);
 
-void listFree (nodeType *head);
+void listFree(nodeType *head);
 
 // handToKey: computes the key for a given hand
-long long int handToKey (handType *hand);
+long long int handToKey(handType *hand);
 
 // handToIndex: finds the index in the hash table for a given hand
-int handToIndex (handType *hand);
+int handToIndex(handType *hand);
 
-void hashTableInsert (hashTableType *table, handType *hand, int response);
+void hashTableInsert(hashTableType *table, handType *hand, int response);
 
-int hashTableLookup (hashTableType *table, handType *hand);
+int hashTableLookup(hashTableType *table, handType *hand);
 
-void hashTableInit (hashTableType *table);
+// hashTableInit: generates a random response table
+hashTableType *hashTableInit();
 
-void hashTableToFile (hashTableType *table, FILE *f);
+void hashTableToFile(hashTableType *table, FILE *f);
 
-void hashTableFree (hashTableType *table);
+void hashTableFree(hashTableType *table);
 
 #endif /* HASHTABLE_H_ */

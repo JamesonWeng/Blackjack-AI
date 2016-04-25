@@ -3,24 +3,17 @@
 
 #include "hashtable.h"
 #include "ai.h"
+#include "constants.h"
 
-int main () {
-	srand((unsigned int)time(NULL));
+int main() {
+	srand((unsigned int) time(NULL));
+	FILE *f = fopen("hashtable.txt", "w");
 
-	FILE *f = fopen ("hashtable.txt", "w");
-	if (f == NULL) {
-		return 5;
-	}
+	aiType *ai = aiSimulate();
 
-	aiType ai;
-
-	aiInit (&ai);
-
-	hashTableToFile (&(ai.responses), f);
-	calculateFitness (&ai);
-
-	hashTableFree (&ai.responses);
-
+	hashTableToFile(ai->responses, f);
+	aiFree(ai);
+	fclose(f);
 	return 0;
 }
 

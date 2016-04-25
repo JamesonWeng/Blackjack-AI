@@ -13,13 +13,17 @@
 #include "hashtable.h"
 
 typedef struct {
-	handType hand;
+	handType *hand;
 	int fitness;	// measure of how good the AI is
-	hashTableType responses;
+	hashTableType *responses;
 } aiType;
 
-void aiInit (aiType *ai);
+aiType *aiInit();
 
-void calculateFitness (aiType *ai);
+void aiFree(aiType *ai);
+
+void aiNewGeneration(aiType **aiGen);
+
+aiType *aiSimulate();
 
 #endif /* AI_H_ */

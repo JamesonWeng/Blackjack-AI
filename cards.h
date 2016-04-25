@@ -5,7 +5,6 @@
  *      Author: Jameson
  */
 
-
 #ifndef CARDS_H_
 #define CARDS_H_
 
@@ -28,21 +27,25 @@ typedef struct {
 
 typedef struct {
 	int sum, handSize, hit;	// key used to lookup the hand in the hash table
-	cardType *cards[MAX_HAND_SIZE];	// array that points to cards
+	cardType *cards;	// points to an array of cards
 } handType;
 
-void deckCreate (cardType **deck);
+cardType *deckInit();
 
-void deckShuffle (cardType **deck);
+void deckShuffle(cardType *deck);
 
-void freeCards (cardType **cards, int numCards);
+void deckFree(cardType *deck);
 
-void printCards (cardType **cards, int numCards);
+void printCards(cardType *cards, int numCards);
 
-void handInsert (handType *hand, cardType *card);
+handType *handInit();
 
-void handRemove (handType *hand, cardType *card);
+void handInsert(handType *hand, cardType *card);
 
-void handFindSum (handType *hand);
+void handRemove(handType *hand, cardType *card);
+
+void handFindSum(handType *hand);
+
+void handFree(handType *hand);
 
 #endif /* CARDS_H_ */
